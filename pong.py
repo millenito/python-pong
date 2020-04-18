@@ -32,12 +32,12 @@ def physics():
     # Ball bounces the other way around if hits edge of the screen
     if ball.top <= 0 or ball.bottom >= s_height:
         ball_speed_y *= -1
-    if ball.left <= 0 or ball.right >= s_width:
-        ball.center = (s_width / 2, s_height / 2)
-        ball_speed_x *= random.choice((1, -1))
-        ball_speed_y *= random.choice((1, -1))
+    if ball.left <= 0:
+        score_up("player")
+    if ball.right >= s_width:
+        score_up("opponent")
 
-    # Ball baounce if hits player or opponent
+        # Ball baounce if hits player or opponent
     if ball.colliderect(player) or ball.colliderect(opponent):
         ball_speed_x *= -1
 
@@ -53,6 +53,20 @@ def opponent_ai():
         opponent.top += opponent_speed_inc
     if opponent.bottom > ball.y:
         opponent.bottom -= opponent_speed_inc
+
+
+def score_up(who):
+    global player_score, opponent_score, ball_speed_x, ball_speed_y
+
+    if who == "player":
+        player_score += 1
+    else:
+        opponent_score += 1
+
+    # Reset ball back to center then send it to random direction
+    ball.center = (int(s_width / 2), int(s_height / 2))
+    ball_speed_x *= random.choice((1, -1))
+    ball_speed_y *= random.choice((1, -1))
 
 
 pygame.init()
@@ -76,9 +90,11 @@ white = (255, 255, 255)
 red = pygame.Color('red')
 
 ball_speed_x = ball_speed_y = 7 * random.choice((1, -1))
-player_speed = opponent_speed = 0
 player_speed_inc = opponent_speed_inc = 8
+player_speed = opponent_speed = 0
+player_score = opponent_score = 0
 
+game_font = pygame.font.Font("freesansbold.ttf", 32)
 while True:
     # Handle input
     game_input()
@@ -98,8 +114,13 @@ while True:
     opponent.y += opponent_speed
 
     physics()
-
     opponent_ai()
+
+    # Text
+    player_text = game_font.render(f"{player_score}", True, white)
+    opponent_text = game_font.render(f"{opponent_score}", True, white)
+    screen.blit(player_text, (660, 470))
+    screen.blit(opponent_text, (600, 470))
 
     pygame.display.flip()  # Outputs to display
     clock.tick(60)  # Game tick 60 FPS
