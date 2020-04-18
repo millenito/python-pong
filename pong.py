@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 
 def game_input():
@@ -14,15 +15,15 @@ def game_input():
                 player_speed += player_speed_inc
             elif event.key == pygame.K_UP:
                 player_speed -= player_speed_inc
-            if event.key == pygame.K_s:
-                opponent_speed += player_speed_inc
-            elif event.key == pygame.K_w:
-                opponent_speed -= player_speed_inc
+            #  if event.key == pygame.K_s:
+            #      opponent_speed += opponent_speed_inc
+            #  elif event.key == pygame.K_w:
+            #      opponent_speed -= opponent_speed_inc
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_DOWN or event.key == pygame.K_UP:
                 player_speed = 0
-            if event.key == pygame.K_w or event.key == pygame.K_s:
-                opponent_speed = 0
+            #  if event.key == pygame.K_w or event.key == pygame.K_s:
+            #      opponent_speed = 0
 
 
 def physics():
@@ -32,7 +33,9 @@ def physics():
     if ball.top <= 0 or ball.bottom >= s_height:
         ball_speed_y *= -1
     if ball.left <= 0 or ball.right >= s_width:
-        ball_speed_x *= -1
+        ball.center = (s_width / 2, s_height / 2)
+        ball_speed_x *= random.choice((1, -1))
+        ball_speed_y *= random.choice((1, -1))
 
     # Ball baounce if hits player or opponent
     if ball.colliderect(player) or ball.colliderect(opponent):
@@ -43,6 +46,13 @@ def physics():
         player_speed = 0
     if opponent.top <= 0 or opponent.bottom >= s_height:
         opponent_speed = 0
+
+
+def opponent_ai():
+    if opponent.top < ball.y:
+        opponent.top += opponent_speed_inc
+    if opponent.bottom > ball.y:
+        opponent.bottom -= opponent_speed_inc
 
 
 pygame.init()
@@ -65,7 +75,7 @@ bg_color = pygame.Color('black')
 white = (255, 255, 255)
 red = pygame.Color('red')
 
-ball_speed_x = ball_speed_y = 7
+ball_speed_x = ball_speed_y = 7 * random.choice((1, -1))
 player_speed = opponent_speed = 0
 player_speed_inc = opponent_speed_inc = 8
 
@@ -88,6 +98,8 @@ while True:
     opponent.y += opponent_speed
 
     physics()
+
+    opponent_ai()
 
     pygame.display.flip()  # Outputs to display
     clock.tick(60)  # Game tick 60 FPS
