@@ -16,6 +16,8 @@ class Game:
         self.white = (255, 255, 255)
         self.ball = self.player = self.opponent = None
         self.start_timer = self.current_time = 0
+        self.win_score = 5
+        self.pause = False
 
     def game_input(self):
         for event in pygame.event.get():
@@ -47,11 +49,6 @@ class Game:
                         self.opponent.speed = 0
 
     def score_up(self, scorer):
-        if scorer == "player":
-            self.player.score += 1
-        elif scorer == "opponent":
-            self.opponent.score += 1
-
         # Reset ball back to center then send it to random direction
         self.ball.x = int(self.screen_w / 2)
         self.ball.y = int(self.screen_h / 2)
@@ -64,6 +61,29 @@ class Game:
         self.opponent.x = 20
         self.opponent.y = int(self.screen_h / 2 - 70)
 
+        scorer.score += 1
+        if scorer.score == self.win_score:
+            text_win = Button(self.white,
+                              (self.screen_w / 2) - 150,
+                              self.screen_h / 2,
+                              300,
+                              45,
+                              f"{scorer.who} Wins",
+                              self.bg_color,
+                              32)
+            text_win.draw(self.screen)
+            pygame.display.flip()
+
+            # Small delay to show winner text then exit back to main menu
+            win_wait = True
+            win_wait_time = pygame.time.get_ticks()
+            while win_wait:
+                current_wait_time = pygame.time.get_ticks()
+                if current_wait_time - win_wait_time > 2500:
+                    win_wait = False
+
+            self.pause = True
+
         # Start countdown timer
         self.start_timer = pygame.time.get_ticks()
 
@@ -74,11 +94,15 @@ class Game:
         self.ball = Ball(self.screen, self.screen_w / 2, self.screen_h / 2)
         self.player = Paddle(self.screen,
                              int(self.screen_w - 20),
-                             int(self.screen_h / 2 - 70))
-        self.opponent = Paddle(self.screen, 20, int(self.screen_h / 2 - 70))
+                             int(self.screen_h / 2 - 70),
+                             'Player 1')
+        self.opponent = Paddle(self.screen,
+                               20,
+                               int(self.screen_h / 2 - 70),
+                               'Player 2')
 
         scorer = None
-        while True:
+        while not self.pause:
             # Handle input
             self.game_input()
 
@@ -94,22 +118,23 @@ class Game:
 
             self.current_time = pygame.time.get_ticks()
 
+            # Start the game with a 2 seconds delay
             countdown_timer = self.current_time - self.start_timer
-
             if countdown_timer > 2000:
-                # Animations
-                scorer = self.ball.move(self.screen_w,
-                                        self.screen_h,
-                                        self.player,
-                                        self.opponent)
-                self.player.move(self.screen_h)
-                self.opponent.move(self.screen_h)
+                if self.player.score < self.win_score and self.opponent.score < self.win_score:
+                    # Animations
+                    scorer = self.ball.move(self.screen_w,
+                                            self.screen_h,
+                                            self.player,
+                                            self.opponent)
+                    self.player.move(self.screen_h)
+                    self.opponent.move(self.screen_h)
 
-                if self.mode == 'single':
-                    self.opponent.move_ai(self.ball)
+                    if self.mode == 'single':
+                        self.opponent.move_ai(self.ball)
 
-                if scorer is not None:
-                    self.score_up(scorer)
+                    if scorer is not None:
+                        self.score_up(scorer)
             else:
                 p1_up = Button(self.white,
                                self.screen_w - 120,
