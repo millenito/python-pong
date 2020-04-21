@@ -14,6 +14,7 @@ class Game:
         self.bg_color = pygame.Color('black')
         self.white = (255, 255, 255)
         self.ball = self.player = self.opponent = None
+        self.start_timer = self.current_time = 0
 
     def game_input(self):
         for event in pygame.event.get():
@@ -49,6 +50,15 @@ class Game:
         self.ball.ball_speed_x *= random.choice((1, -1))
         self.ball.ball_speed_y *= random.choice((1, -1))
 
+        # reset player and opponent back to center
+        self.player.x = int(self.screen_w - 20)
+        self.player.y = int(self.screen_h / 2 - 70)
+        self.opponent.x = 20
+        self.opponent.y = int(self.screen_h / 2 - 70)
+
+        # Start countdown timer
+        self.start_timer = pygame.time.get_ticks()
+
     def run(self):
         clock = pygame.time.Clock()
 
@@ -59,6 +69,7 @@ class Game:
                              int(self.screen_h / 2 - 70))
         self.opponent = Paddle(self.screen, 20, int(self.screen_h / 2 - 70))
 
+        scorer = None
         while True:
             # Handle input
             self.game_input()
@@ -73,17 +84,22 @@ class Game:
                                (self.screen_w / 2, 0),  # Start coordinate
                                (self.screen_w / 2, self.screen_h))  # End coordinate
 
-            # Animations
-            scorer = self.ball.move(self.screen_w,
-                                    self.screen_h,
-                                    self.player,
-                                    self.opponent)
-            self.player.move(self.screen_h)
-            self.opponent.move(self.screen_h)
-            self.opponent.move_ai(self.ball)
+            self.current_time = pygame.time.get_ticks()
 
-            if scorer is not None:
-                self.score_up(scorer)
+            countdown_timer = self.current_time - self.start_timer
+
+            if countdown_timer > 1500:
+                # Animations
+                scorer = self.ball.move(self.screen_w,
+                                        self.screen_h,
+                                        self.player,
+                                        self.opponent)
+                self.player.move(self.screen_h)
+                self.opponent.move(self.screen_h)
+                self.opponent.move_ai(self.ball)
+
+                if scorer is not None:
+                    self.score_up(scorer)
 
             # Text
             player_text = self.game_font.render(f"{self.player.score}",
