@@ -2,7 +2,7 @@ import pygame
 
 
 class Paddle:
-    def __init__(self, screen, x, y):
+    def __init__(self, screen, x, y, who):
         self.w = 10
         self.h = 140
         self.x = x
@@ -13,6 +13,7 @@ class Paddle:
         self.color = (255, 255, 255)
         self.screen = screen
         self.rect = None
+        self.who = who
 
     def draw(self):
         self.rect = pygame.draw.rect(self.screen, self.color, (self.x,
