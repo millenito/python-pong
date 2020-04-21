@@ -6,13 +6,12 @@ from paddle import Paddle
 
 
 class Game:
-    def __init__(self):
-        self.s_size = self.screen_w, self.screen_h = 1280, 960
-        self.screen = None
-        self.title = 'Pong'
+    def __init__(self, screen):
+        self.screen = screen
+        self.screen_w, self.screen_h = pygame.display.get_surface().get_size()
+        self.game_font = pygame.font.Font("freesansbold.ttf", 32)
         self.bg_color = pygame.Color('black')
         self.white = (255, 255, 255)
-        self.game_font = None
         self.ball = self.player = self.opponent = None
 
     def game_input(self):
@@ -22,23 +21,25 @@ class Game:
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN:
-                    self.player.speed += self.player.speed_inc
+                    if self.player.rect.bottom < self.screen_h:
+                        self.player.speed += self.player.speed_inc
                 elif event.key == pygame.K_UP:
-                    self.player.speed -= self.player.speed_inc
+                    if self.player.rect.top > 0:
+                        self.player.speed -= self.player.speed_inc
                 #  if event.key == pygame.K_s:
                 #      self.opponent.speed += self.opponent.speed_inc
                 #  elif event.key == pygame.K_w:
                 #      self.opponent.speed -= self.opponent.speed_inc
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_DOWN or event.key == pygame.K_UP:
-                    self.player.stop()
+                    self.player.speed = 0
                 #  if event.key == pygame.K_w or event.key == pygame.K_s:
                 #      self.opponent.stop()
 
-    def score_up(self, who):
-        if who == "player":
+    def score_up(self, scorer):
+        if scorer == "player":
             self.player.score += 1
-        elif who == "opponent":
+        elif scorer == "opponent":
             self.opponent.score += 1
 
         # Reset ball back to center then send it to random direction
@@ -48,12 +49,7 @@ class Game:
         self.ball.ball_speed_y *= random.choice((1, -1))
 
     def run(self):
-        pygame.init()
         clock = pygame.time.Clock()
-
-        # Set screen
-        self.screen = pygame.display.set_mode(self.s_size)
-        pygame.display.set_caption(self.title)
 
         # Shapes
         self.ball = Ball(self.screen, self.screen_w / 2, self.screen_h / 2)
@@ -62,7 +58,6 @@ class Game:
                              int(self.screen_h / 2 - 70))
         self.opponent = Paddle(self.screen, 20, int(self.screen_h / 2 - 70))
 
-        self.game_font = pygame.font.Font("freesansbold.ttf", 32)
         while True:
             # Handle input
             self.game_input()
@@ -78,7 +73,7 @@ class Game:
                                (self.screen_w / 2, self.screen_h))  # End coordinate
 
             # Animations
-            winner = self.ball.move(self.screen_w,
+            scorer = self.ball.move(self.screen_w,
                                     self.screen_h,
                                     self.player,
                                     self.opponent)
@@ -86,8 +81,8 @@ class Game:
             self.opponent.move(self.screen_h)
             self.opponent.move_ai(self.ball)
 
-            if winner is not None:
-                self.score_up(winner)
+            if scorer is not None:
+                self.score_up(scorer)
 
             # Text
             player_text = self.game_font.render(f"{self.player.score}",

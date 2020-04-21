@@ -24,13 +24,10 @@ class Paddle:
         self.y += self.speed
 
         # Can't go offscreen
-        if self.rect.top <= 0:
-            self.stop()
-        if self.rect.bottom >= screen_h:
-            self.stop()
-
-    def stop(self):
-        self.speed = 0
+        if self.y <= 0:
+            self.speed = 0
+        if self.y >= screen_h - self.h:
+            self.speed = 0
 
     def move_ai(self, ball):
         if self.rect.bottom < ball.y:
