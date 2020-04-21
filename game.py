@@ -6,8 +6,9 @@ from paddle import Paddle
 
 
 class Game:
-    def __init__(self, screen):
+    def __init__(self, screen, mode):
         self.screen = screen
+        self.mode = mode
         self.screen_w, self.screen_h = pygame.display.get_surface().get_size()
         self.game_font = pygame.font.Font("freesansbold.ttf", 32)
         self.bg_color = pygame.Color('black')

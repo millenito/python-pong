@@ -1,5 +1,6 @@
 import pygame
 import sys
+from game import Game
 
 
 class Button():
@@ -77,9 +78,11 @@ class Menu:
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if b_single.isOver(mouse_pos):
-                        print('click single player')
+                        game = Game(self.screen, 'single')
+                        game.run()
                     elif b_multi.isOver(mouse_pos):
-                        print('click multi player')
+                        game = Game(self.screen, 'double')
+                        game.run()
 
                 if event.type == pygame.MOUSEMOTION:
                     if b_single.isOver(mouse_pos):
