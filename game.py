@@ -3,6 +3,7 @@ import sys
 import random
 from ball import Ball
 from paddle import Paddle
+from button import Button
 
 
 class Game:
@@ -28,15 +29,22 @@ class Game:
                 elif event.key == pygame.K_UP:
                     if self.player.rect.top > 0:
                         self.player.speed -= self.player.speed_inc
-                #  if event.key == pygame.K_s:
-                #      self.opponent.speed += self.opponent.speed_inc
-                #  elif event.key == pygame.K_w:
-                #      self.opponent.speed -= self.opponent.speed_inc
+
+                if self.mode == 'double':
+                    if event.key == pygame.K_s:
+                        if self.opponent.rect.bottom < self.screen_h:
+                            self.opponent.speed += self.opponent.speed_inc
+                    elif event.key == pygame.K_w:
+                        if self.opponent.rect.top > 0:
+                            self.opponent.speed -= self.opponent.speed_inc
+
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_DOWN or event.key == pygame.K_UP:
                     self.player.speed = 0
-                #  if event.key == pygame.K_w or event.key == pygame.K_s:
-                #      self.opponent.stop()
+
+                if self.mode == 'double':
+                    if event.key == pygame.K_w or event.key == pygame.K_s:
+                        self.opponent.speed = 0
 
     def score_up(self, scorer):
         if scorer == "player":
@@ -88,7 +96,7 @@ class Game:
 
             countdown_timer = self.current_time - self.start_timer
 
-            if countdown_timer > 1500:
+            if countdown_timer > 2000:
                 # Animations
                 scorer = self.ball.move(self.screen_w,
                                         self.screen_h,
@@ -96,10 +104,48 @@ class Game:
                                         self.opponent)
                 self.player.move(self.screen_h)
                 self.opponent.move(self.screen_h)
-                self.opponent.move_ai(self.ball)
+
+                if self.mode == 'single':
+                    self.opponent.move_ai(self.ball)
 
                 if scorer is not None:
                     self.score_up(scorer)
+            else:
+                p1_up = Button(self.white,
+                               self.screen_w - 120,
+                               300,
+                               45,
+                               45,
+                               "Up",
+                               self.bg_color)
+                p1_down = Button(self.white,
+                                 self.screen_w - 130,
+                                 630,
+                                 70,
+                                 45,
+                                 "Down",
+                                 self.bg_color,
+                                 24)
+                p1_up.draw(self.screen)
+                p1_down.draw(self.screen)
+
+                if self.mode == 'double':
+                    p2_up = Button(self.white,
+                                   80,
+                                   300,
+                                   45,
+                                   45,
+                                   "W",
+                                   self.bg_color)
+                    p2_down = Button(self.white,
+                                     80,
+                                     600,
+                                     45,
+                                     45,
+                                     "S",
+                                     self.bg_color)
+                    p2_up.draw(self.screen)
+                    p2_down.draw(self.screen)
 
             # Text
             player_text = self.game_font.render(f"{self.player.score}",
