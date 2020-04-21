@@ -8,8 +8,8 @@ class Ball:
         self.h = 30
         self.x = x
         self.y = y
-        self.ball_speed_x = 7 * random.choice((1, -1))
-        self.ball_speed_y = 7 * random.choice((1, -1))
+        self.ball_speed_x = 9 * random.choice((1, -1))
+        self.ball_speed_y = 9 * random.choice((1, -1))
         self.color = (255, 255, 255)
         self.screen = screen
         self.rect = None
@@ -40,8 +40,8 @@ class Ball:
             self.x = p2.x + 25  # Move slightly besides paddle, clipping bug
 
         if self.rect.left <= 0:
-            return 'player'
+            return p1
         if self.rect.right >= screen_w:
-            return 'opponent'
+            return p2
 
         return None
